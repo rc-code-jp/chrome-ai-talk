@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useState, useRef, type FormEvent, type KeyboardEvent } from 'react';
 import { RobotAvatar } from './RobotAvatar';
 import type { ChatGptDomAdapter } from '../lib/chatgptDomAdapter';
 import type { ChatState } from '../lib/types';
@@ -38,12 +38,11 @@ export function ChatOverlayApp({
   }, [adapter, initialOverlayEnabled]);
 
   const overlayEnabled = chatState.overlayEnabled;
-  const latestAssistantMessage = [...chatState.messages]
-    .reverse()
-    .find((message) => message.role === 'assistant');
-  const latestUserMessage = [...chatState.messages]
-    .reverse()
-    .find((message) => message.role === 'user');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatState.messages]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,41 +107,33 @@ export function ChatOverlayApp({
       {!overlayEnabled ? null : (
         <main className="chrome-ai-overlay">
           <section className="chrome-ai-stage">
-            <section className="chrome-ai-scene">
-              <div className="chrome-ai-scene-glow" />
-              <div className="chrome-ai-robot-wrap">
-                <RobotAvatar status={chatState.status} />
+            <section className="chrome-ai-scene chrome-ai-scene-split">
+              {/* Left Side: Robot */}
+              <div className="chrome-ai-pane-left">
+                <div className="chrome-ai-robot-wrap">
+                  <RobotAvatar status={chatState.status} />
+                </div>
               </div>
 
-              <div className="chrome-ai-scene-bubbles">
-                <article className="chrome-ai-hero-bubble chrome-ai-hero-bubble-assistant">
-                  <p className="chrome-ai-role">Robot</p>
-                  {latestAssistantMessage ? (
-                    <div className="chrome-ai-bubble chrome-ai-bubble-assistant">
-                      <p>{latestAssistantMessage.text}</p>
-                      {latestAssistantMessage.isStreaming ? (
-                        <span className="chrome-ai-streaming">Responding...</span>
-                      ) : null}
+              {/* Right Side: Chat History */}
+              <div className="chrome-ai-pane-right">
+                <div className="chrome-ai-chat-history">
+                  {chatState.messages.length === 0 ? (
+                    <div className="chrome-ai-chat-balloon chrome-ai-chat-balloon-assistant">
+                      Hello. I am ready when your ChatGPT tab is ready.
                     </div>
                   ) : (
-                    <div className="chrome-ai-bubble chrome-ai-bubble-assistant">
-                      <p>Hello. I am ready when your ChatGPT tab is ready.</p>
-                    </div>
+                    chatState.messages.map((msg, idx) => (
+                      <div key={idx} className={`chrome-ai-chat-balloon chrome-ai-chat-balloon-${msg.role}`}>
+                        {msg.text}
+                        {msg.isStreaming && (
+                          <span className="chrome-ai-streaming-indicator">...</span>
+                        )}
+                      </div>
+                    ))
                   )}
-                </article>
-
-                <article className="chrome-ai-hero-bubble chrome-ai-hero-bubble-user">
-                  <p className="chrome-ai-role">You</p>
-                  {latestUserMessage ? (
-                    <div className="chrome-ai-bubble chrome-ai-bubble-user">
-                      <p>{latestUserMessage.text}</p>
-                    </div>
-                  ) : (
-                    <div className="chrome-ai-bubble chrome-ai-bubble-user chrome-ai-bubble-muted">
-                      <p>Ask the robot something.</p>
-                    </div>
-                  )}
-                </article>
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
             </section>
 
