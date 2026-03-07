@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Chrome AI Talk",
+  "description": "Wraps ChatGPT with a robot conversation overlay.",
+  "version": "0.1.0",
+  "permissions": ["storage"],
+  "host_permissions": ["https://chatgpt.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["assets/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["https://chatgpt.com/*"]
+    }
+  ]
+}
