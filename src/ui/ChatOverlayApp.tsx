@@ -38,6 +38,12 @@ export function ChatOverlayApp({
   }, [adapter, initialOverlayEnabled]);
 
   const overlayEnabled = chatState.overlayEnabled;
+  const latestAssistantMessage = [...chatState.messages]
+    .reverse()
+    .find((message) => message.role === 'assistant');
+  const latestUserMessage = [...chatState.messages]
+    .reverse()
+    .find((message) => message.role === 'user');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -91,108 +97,82 @@ export function ChatOverlayApp({
         className="chrome-ai-toggle"
         type="button"
         onClick={handleOverlayToggle}
+        aria-label={overlayEnabled ? 'Hide overlay' : 'Show overlay'}
+        title={overlayEnabled ? 'Hide overlay' : 'Show overlay'}
       >
-        {overlayEnabled ? 'Hide overlay' : 'Show overlay'}
+        <span className="chrome-ai-toggle-icon" aria-hidden="true">
+          {overlayEnabled ? '◐' : '◯'}
+        </span>
       </button>
 
       {!overlayEnabled ? null : (
         <main className="chrome-ai-overlay">
-          <section className="chrome-ai-avatar-panel">
-            <div className="chrome-ai-avatar-card">
-              <RobotAvatar status={chatState.status} />
-              <div className="chrome-ai-status">
-                <p className="chrome-ai-status-label">Robot status</p>
-                <strong>{statusLabel(chatState.status)}</strong>
+          <section className="chrome-ai-stage">
+            <section className="chrome-ai-scene">
+              <div className="chrome-ai-scene-glow" />
+              <div className="chrome-ai-robot-wrap">
+                <RobotAvatar status={chatState.status} />
+              </div>
+
+              <div className="chrome-ai-scene-bubbles">
+                <article className="chrome-ai-hero-bubble chrome-ai-hero-bubble-assistant">
+                  <p className="chrome-ai-role">Robot</p>
+                  {latestAssistantMessage ? (
+                    <div className="chrome-ai-bubble chrome-ai-bubble-assistant">
+                      <p>{latestAssistantMessage.text}</p>
+                      {latestAssistantMessage.isStreaming ? (
+                        <span className="chrome-ai-streaming">Responding...</span>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="chrome-ai-bubble chrome-ai-bubble-assistant">
+                      <p>Hello. I am ready when your ChatGPT tab is ready.</p>
+                    </div>
+                  )}
+                </article>
+
+                <article className="chrome-ai-hero-bubble chrome-ai-hero-bubble-user">
+                  <p className="chrome-ai-role">You</p>
+                  {latestUserMessage ? (
+                    <div className="chrome-ai-bubble chrome-ai-bubble-user">
+                      <p>{latestUserMessage.text}</p>
+                    </div>
+                  ) : (
+                    <div className="chrome-ai-bubble chrome-ai-bubble-user chrome-ai-bubble-muted">
+                      <p>Ask the robot something.</p>
+                    </div>
+                  )}
+                </article>
+              </div>
+            </section>
+
+            <form className="chrome-ai-composer chrome-ai-composer-panel" onSubmit={handleSubmit}>
+              <textarea
+                id="chrome-ai-input"
+                aria-label="Message input"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={handleComposerKeyDown}
+                placeholder="Type here and send through the hidden ChatGPT composer..."
+                rows={3}
+                disabled={!chatState.composerAvailable}
+              />
+              <div className="chrome-ai-composer-footer">
                 <span>
-                  {chatState.syncError
-                    ? chatState.syncError
-                    : 'Mirroring the ChatGPT conversation behind this layer.'}
+                  {submitError
+                    ? submitError
+                    : chatState.composerAvailable
+                      ? 'Input will be forwarded to ChatGPT. Command+Enter also sends.'
+                      : 'Composer unavailable on this page.'}
                 </span>
+                <button type="submit" disabled={!chatState.composerAvailable || !draft.trim()}>
+                  Send
+                </button>
               </div>
-            </div>
-          </section>
-
-          <section className="chrome-ai-chat-panel">
-            <div className="chrome-ai-chat-frame">
-              <header className="chrome-ai-chat-header">
-                <div>
-                  <p>Chrome AI Talk</p>
-                  <h1>Robot conversation overlay</h1>
-                </div>
-                <span className="chrome-ai-pill">{chatState.messages.length} messages</span>
-              </header>
-
-              <div className="chrome-ai-messages">
-                {chatState.messages.length ? (
-                  chatState.messages.map((message) => (
-                    <article
-                      key={message.id}
-                      className={`chrome-ai-message chrome-ai-message-${message.role}`}
-                    >
-                      <p className="chrome-ai-role">
-                        {message.role === 'user' ? 'You' : 'Robot'}
-                      </p>
-                      <div className="chrome-ai-bubble">
-                        <p>{message.text}</p>
-                        {message.isStreaming ? (
-                          <span className="chrome-ai-streaming">Responding...</span>
-                        ) : null}
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <div className="chrome-ai-empty">
-                    <p>Conversation not detected yet.</p>
-                    <span>Open an active ChatGPT chat to start syncing.</span>
-                  </div>
-                )}
-              </div>
-
-              <form className="chrome-ai-composer" onSubmit={handleSubmit}>
-                <label className="chrome-ai-composer-label" htmlFor="chrome-ai-input">
-                  Talk to the robot
-                </label>
-                <textarea
-                  id="chrome-ai-input"
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  onKeyDown={handleComposerKeyDown}
-                  placeholder="Type here and send through the hidden ChatGPT composer..."
-                  rows={3}
-                  disabled={!chatState.composerAvailable}
-                />
-                <div className="chrome-ai-composer-footer">
-                  <span>
-                    {submitError
-                      ? submitError
-                      : chatState.composerAvailable
-                        ? 'Input will be forwarded to ChatGPT.'
-                        : 'Composer unavailable on this page.'}
-                  </span>
-                  <button type="submit" disabled={!chatState.composerAvailable || !draft.trim()}>
-                    Send
-                  </button>
-                </div>
-              </form>
-            </div>
+            </form>
           </section>
         </main>
       )}
     </div>
   );
-}
-
-function statusLabel(status: ChatState['status']) {
-  switch (status) {
-    case 'idle':
-      return 'Listening';
-    case 'streaming':
-      return 'Thinking';
-    case 'sync-error':
-      return 'Lost sync';
-    case 'waiting-input':
-      return 'Ready';
-    default:
-      return 'Ready';
-  }
 }

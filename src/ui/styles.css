@@ -9,92 +9,87 @@
   z-index: 2;
   pointer-events: auto;
   border: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
   border-radius: 999px;
-  background: rgba(18, 31, 46, 0.88);
+  background: rgba(18, 31, 46, 0.9);
   color: #fff7ef;
-  padding: 10px 16px;
-  font: 600 13px/1 "Avenir Next", "Trebuchet MS", sans-serif;
+  padding: 0;
   box-shadow: 0 12px 36px rgba(7, 15, 24, 0.28);
   cursor: pointer;
 }
 
+.chrome-ai-toggle-icon {
+  font: 700 18px/1 "Avenir Next", "Trebuchet MS", sans-serif;
+}
+
 .chrome-ai-overlay {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(300px, 34vw) 1fr;
-  gap: 24px;
-  padding: 32px;
+  height: 100vh;
+  padding: 28px;
   background:
-    radial-gradient(circle at top left, rgba(255, 237, 197, 0.9), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(255, 170, 145, 0.35), transparent 28%),
-    linear-gradient(135deg, rgba(255, 248, 238, 0.96), rgba(255, 232, 222, 0.94));
+    radial-gradient(circle at top left, rgba(255, 236, 199, 0.9), transparent 24%),
+    radial-gradient(circle at top right, rgba(255, 168, 136, 0.28), transparent 24%),
+    linear-gradient(180deg, rgba(255, 248, 238, 0.96), rgba(255, 232, 222, 0.93));
   backdrop-filter: blur(10px);
   pointer-events: auto;
-}
-
-.chrome-ai-avatar-panel,
-.chrome-ai-chat-panel {
-  min-height: calc(100vh - 64px);
-}
-
-.chrome-ai-avatar-card,
-.chrome-ai-chat-frame {
-  height: 100%;
-  border-radius: 32px;
-  border: 1px solid rgba(99, 69, 45, 0.12);
-  background: rgba(255, 252, 247, 0.78);
-  box-shadow: 0 24px 80px rgba(80, 48, 23, 0.14);
-}
-
-.chrome-ai-avatar-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 28px;
-  position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
-.chrome-ai-avatar-card::before {
+.chrome-ai-stage {
+  height: calc(100vh - 56px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 14px;
+  min-height: 0;
+}
+
+.chrome-ai-scene {
+  position: relative;
+  margin: 18px 18px 0;
+  min-height: 0;
+  border-radius: 30px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.95), transparent 28%),
+    linear-gradient(180deg, rgba(255, 244, 232, 0.96), rgba(255, 223, 208, 0.9));
+  border: 1px solid rgba(99, 69, 45, 0.08);
+}
+
+.chrome-ai-scene::after {
   content: "";
   position: absolute;
-  inset: 16px;
-  border-radius: 28px;
-  border: 1px dashed rgba(255, 144, 86, 0.32);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32%;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255, 190, 155, 0.34), transparent 52%),
+    linear-gradient(180deg, rgba(255, 209, 183, 0.12), rgba(255, 188, 154, 0.34));
 }
 
-.chrome-ai-status {
-  width: 100%;
-  padding: 18px 20px 0;
-  text-align: center;
-  color: #453025;
-  font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+.chrome-ai-scene-glow {
+  position: absolute;
+  inset: 12% 26% auto;
+  height: 110px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  filter: blur(28px);
 }
 
-.chrome-ai-status-label {
-  margin: 0 0 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 12px;
-  color: #9f6f57;
-}
-
-.chrome-ai-status strong {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 28px;
-}
-
-.chrome-ai-status span {
-  display: block;
-  font-size: 14px;
-  line-height: 1.5;
+.chrome-ai-robot-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 1;
 }
 
 .chrome-ai-robot {
-  width: min(100%, 360px);
-  filter: drop-shadow(0 16px 30px rgba(247, 114, 78, 0.24));
+  width: min(44vw, 340px);
+  filter: drop-shadow(0 22px 36px rgba(247, 114, 78, 0.22));
   animation: chrome-ai-float 4.2s ease-in-out infinite;
 }
 
@@ -114,69 +109,35 @@
   animation: chrome-ai-blink 4s infinite;
 }
 
-.chrome-ai-chat-frame {
+.chrome-ai-scene-bubbles {
+  position: relative;
+  z-index: 2;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  overflow: hidden;
-}
-
-.chrome-ai-chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 12px;
-  padding: 24px 26px 18px;
-  border-bottom: 1px solid rgba(101, 71, 48, 0.12);
-  color: #453025;
-  font-family: Georgia, "Times New Roman", serif;
-}
-
-.chrome-ai-chat-header p,
-.chrome-ai-chat-header h1 {
-  margin: 0;
-}
-
-.chrome-ai-chat-header p {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #9f6f57;
-}
-
-.chrome-ai-chat-header h1 {
-  font-size: 34px;
-  line-height: 1.05;
-}
-
-.chrome-ai-pill {
-  align-self: center;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(253, 142, 100, 0.14);
-  color: #8a4e36;
-  font: 600 12px/1 "Avenir Next", "Trebuchet MS", sans-serif;
-}
-
-.chrome-ai-messages {
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: 100%;
+  padding: 26px;
   overflow: auto;
-  padding: 22px 26px;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.chrome-ai-hero-bubble {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-
-.chrome-ai-message {
-  display: grid;
   gap: 6px;
-  max-width: min(72ch, 88%);
+  max-width: min(38vw, 460px);
+  min-height: 0;
 }
 
-.chrome-ai-message-user {
-  align-self: end;
-}
-
-.chrome-ai-message-assistant {
+.chrome-ai-hero-bubble-assistant {
   align-self: start;
+  justify-self: start;
+}
+
+.chrome-ai-hero-bubble-user {
+  align-self: end;
+  justify-self: end;
 }
 
 .chrome-ai-role {
@@ -188,27 +149,53 @@
 }
 
 .chrome-ai-bubble {
-  border-radius: 22px;
-  padding: 14px 16px;
+  position: relative;
+  border-radius: 26px;
+  padding: 16px 18px;
   font: 500 15px/1.6 "Avenir Next", "Trebuchet MS", sans-serif;
   white-space: pre-wrap;
+  box-shadow: 0 14px 32px rgba(82, 51, 30, 0.1);
+  overflow-wrap: anywhere;
 }
 
-.chrome-ai-message-user .chrome-ai-bubble {
+.chrome-ai-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 14px;
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+}
+
+.chrome-ai-bubble p {
+  margin: 0;
+}
+
+.chrome-ai-bubble-user {
   background: linear-gradient(135deg, #17324d, #29557e);
   color: #fdfaf5;
   border-bottom-right-radius: 8px;
 }
 
-.chrome-ai-message-assistant .chrome-ai-bubble {
+.chrome-ai-bubble-user::after {
+  right: -8px;
+  background: #29557e;
+}
+
+.chrome-ai-bubble-assistant {
   background: linear-gradient(135deg, #fff4ea, #ffe0d2);
   color: #432c20;
   border: 1px solid rgba(253, 142, 100, 0.16);
   border-bottom-left-radius: 8px;
 }
 
-.chrome-ai-bubble p {
-  margin: 0;
+.chrome-ai-bubble-assistant::after {
+  left: -8px;
+  background: #ffe7d8;
+}
+
+.chrome-ai-bubble-muted {
+  opacity: 0.7;
 }
 
 .chrome-ai-streaming {
@@ -220,36 +207,17 @@
   letter-spacing: 0.08em;
 }
 
-.chrome-ai-empty {
-  height: 100%;
-  min-height: 240px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  border: 1px dashed rgba(101, 71, 48, 0.18);
-  border-radius: 24px;
-  color: #7f5a49;
-  font-family: "Avenir Next", "Trebuchet MS", sans-serif;
-}
-
-.chrome-ai-empty p,
-.chrome-ai-empty span {
-  margin: 0;
-}
-
 .chrome-ai-composer {
   padding: 18px 22px 22px;
   border-top: 1px solid rgba(101, 71, 48, 0.12);
-  background: rgba(255, 250, 244, 0.84);
+  background: rgba(255, 250, 244, 0.92);
 }
 
-.chrome-ai-composer-label {
-  display: block;
-  margin-bottom: 10px;
-  color: #6d4838;
-  font: 700 12px/1 "Avenir Next", "Trebuchet MS", sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.chrome-ai-composer-panel {
+  margin: 0 18px 18px;
+  border-radius: 28px;
+  border: 1px solid rgba(99, 69, 45, 0.08);
+  box-shadow: 0 12px 32px rgba(80, 48, 23, 0.08);
 }
 
 .chrome-ai-composer textarea {
@@ -328,30 +296,50 @@
 
 @media (max-width: 980px) {
   .chrome-ai-overlay {
+    padding: 16px;
+  }
+
+  .chrome-ai-stage {
+    height: calc(100vh - 32px);
+  }
+
+  .chrome-ai-scene {
+    margin: 12px 12px 0;
+  }
+
+  .chrome-ai-scene-bubbles {
     grid-template-columns: 1fr;
-    padding: 18px;
+    align-content: start;
+    gap: 18px;
+    padding: 20px;
   }
 
-  .chrome-ai-avatar-panel,
-  .chrome-ai-chat-panel {
-    min-height: auto;
-  }
-
-  .chrome-ai-avatar-card {
-    min-height: 320px;
-  }
-
-  .chrome-ai-chat-header {
-    align-items: start;
-    flex-direction: column;
-  }
-
-  .chrome-ai-message {
+  .chrome-ai-hero-bubble,
+  .chrome-ai-hero-bubble-assistant,
+  .chrome-ai-hero-bubble-user {
+    justify-self: stretch;
+    align-self: start;
     max-width: 100%;
+  }
+
+  .chrome-ai-robot-wrap {
+    bottom: 8px;
+  }
+
+  .chrome-ai-robot {
+    width: min(72vw, 280px);
+  }
+
+  .chrome-ai-chat-frame {
+    margin: 0 12px 12px;
   }
 
   .chrome-ai-composer-footer {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .chrome-ai-composer-panel {
+    margin: 0 12px 12px;
   }
 }
