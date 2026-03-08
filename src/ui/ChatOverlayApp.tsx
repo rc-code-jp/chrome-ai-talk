@@ -38,11 +38,27 @@ export function ChatOverlayApp({
   }, [adapter, initialOverlayEnabled]);
 
   const overlayEnabled = chatState.overlayEnabled;
+  const chatPaneRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = useRef(true);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!shouldAutoScrollRef.current) {
+      return;
+    }
+
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
   }, [chatState.messages]);
+
+  function handleChatPaneScroll() {
+    const pane = chatPaneRef.current;
+    if (!pane) {
+      return;
+    }
+
+    const distanceFromBottom = pane.scrollHeight - pane.scrollTop - pane.clientHeight;
+    shouldAutoScrollRef.current = distanceFromBottom < 48;
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -116,7 +132,7 @@ export function ChatOverlayApp({
               </div>
 
               {/* Right Side: Chat History */}
-              <div className="chrome-ai-pane-right">
+              <div className="chrome-ai-pane-right" ref={chatPaneRef} onScroll={handleChatPaneScroll}>
                 <div className="chrome-ai-chat-history">
                   {chatState.messages.length === 0 ? (
                     <div className="chrome-ai-chat-balloon chrome-ai-chat-balloon-assistant">
