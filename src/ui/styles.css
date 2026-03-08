@@ -21,6 +21,35 @@
   cursor: pointer;
 }
 
+.chrome-ai-new-chat {
+  position: fixed;
+  left: 18px;
+  top: 18px;
+  z-index: 2;
+  pointer-events: auto;
+  border: 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(18, 31, 46, 0.9);
+  color: #fff7ef;
+  padding: 0;
+  box-shadow: 0 12px 36px rgba(7, 15, 24, 0.28);
+  cursor: pointer;
+}
+
+.chrome-ai-new-chat svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .chrome-ai-toggle-icon {
   font: 700 18px/1 "Avenir Next", "Trebuchet MS", sans-serif;
 }
