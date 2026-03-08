@@ -28,7 +28,6 @@ export function ChatOverlayApp({
   });
   const [draft, setDraft] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [localConversationStartIndex, setLocalConversationStartIndex] = useState(0);
 
   useEffect(() => {
     adapter.setOverlayEnabled(initialOverlayEnabled);
@@ -39,7 +38,6 @@ export function ChatOverlayApp({
   }, [adapter, initialOverlayEnabled]);
 
   const overlayEnabled = chatState.overlayEnabled;
-  const visibleMessages = chatState.messages.slice(localConversationStartIndex);
   const chatPaneRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
@@ -50,13 +48,7 @@ export function ChatOverlayApp({
     }
 
     messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' });
-  }, [visibleMessages]);
-
-  useEffect(() => {
-    if (localConversationStartIndex > chatState.messages.length) {
-      setLocalConversationStartIndex(0);
-    }
-  }, [chatState.messages.length, localConversationStartIndex]);
+  }, [chatState.messages]);
 
   function handleChatPaneScroll() {
     const pane = chatPaneRef.current;
@@ -115,7 +107,12 @@ export function ChatOverlayApp({
   }
 
   function handleNewChat() {
-    setLocalConversationStartIndex(chatState.messages.length);
+    const result = adapter.startNewChat();
+    if (!result.ok) {
+      setSubmitError(result.error ?? 'Unable to start a new chat.');
+      return;
+    }
+
     shouldAutoScrollRef.current = true;
     setSubmitError(null);
     setDraft('');
@@ -123,19 +120,6 @@ export function ChatOverlayApp({
 
   return (
     <div className="chrome-ai-shell" data-overlay-enabled={overlayEnabled}>
-      <button
-        className="chrome-ai-new-chat"
-        type="button"
-        onClick={handleNewChat}
-        aria-label="Start new chat"
-        title="Start new chat"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M4.5 4.5h15v10.5h-8l-4.5 4v-4h-2.5z" />
-          <path d="M12 8v4M10 10h4" />
-        </svg>
-      </button>
-
       <button
         className="chrome-ai-toggle"
         type="button"
@@ -150,6 +134,19 @@ export function ChatOverlayApp({
 
       {!overlayEnabled ? null : (
         <main className="chrome-ai-overlay">
+          <button
+            className="chrome-ai-new-chat"
+            type="button"
+            onClick={handleNewChat}
+            aria-label="Start new chat"
+            title="Start new chat"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4.5 4.5h15v10.5h-8l-4.5 4v-4h-2.5z" />
+              <path d="M12 8v4M10 10h4" />
+            </svg>
+          </button>
+
           <section className="chrome-ai-stage">
             <section className="chrome-ai-scene chrome-ai-scene-split">
               {/* Left Side: Robot */}
@@ -162,12 +159,12 @@ export function ChatOverlayApp({
               {/* Right Side: Chat History */}
               <div className="chrome-ai-pane-right" ref={chatPaneRef} onScroll={handleChatPaneScroll}>
                 <div className="chrome-ai-chat-history">
-                  {visibleMessages.length === 0 ? (
+                  {chatState.messages.length === 0 ? (
                     <div className="chrome-ai-chat-balloon chrome-ai-chat-balloon-assistant">
                       Hello. I am ready when your ChatGPT tab is ready.
                     </div>
                   ) : (
-                    visibleMessages.map((msg, idx) => (
+                    chatState.messages.map((msg, idx) => (
                       <div key={idx} className={`chrome-ai-chat-balloon chrome-ai-chat-balloon-${msg.role}`}>
                         {msg.text}
                         {msg.isStreaming && (

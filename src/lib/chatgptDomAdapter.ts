@@ -73,6 +73,21 @@ export class ChatGptDomAdapter {
     return { ok: true };
   }
 
+  startNewChat(): { ok: boolean; error?: string } {
+    const trigger = this.findNewChatTrigger();
+    if (!trigger) {
+      this.refresh('New chat trigger was not found on the page.');
+      return { ok: false, error: 'New chat unavailable' };
+    }
+
+    trigger.click();
+    window.setTimeout(() => {
+      this.refresh();
+    }, 0);
+
+    return { ok: true };
+  }
+
   refresh(errorMessage?: string) {
     const nextState = this.computeState(errorMessage ?? null);
     this.state = nextState;
@@ -296,6 +311,38 @@ export class ChatGptDomAdapter {
     }
 
     return button;
+  }
+
+  private findNewChatTrigger(): HTMLElement | null {
+    const selectors = [
+      'button[data-testid="create-new-chat-button"]',
+      'a[data-testid="create-new-chat-button"]',
+      'button[aria-label*="New chat" i]',
+      'a[aria-label*="New chat" i]',
+      'button[aria-label*="new conversation" i]',
+      'a[aria-label*="new conversation" i]',
+      'button[aria-label*="新しいチャット"]',
+      'a[aria-label*="新しいチャット"]',
+      'nav a[href="/"]',
+      'aside a[href="/"]',
+    ] as const;
+
+    for (const selector of selectors) {
+      const el = document.querySelector<HTMLElement>(selector);
+      if (!el) {
+        continue;
+      }
+
+      const isDisabled =
+        el.getAttribute('aria-disabled') === 'true' ||
+        (el instanceof HTMLButtonElement && el.disabled);
+
+      if (!isDisabled) {
+        return el;
+      }
+    }
+
+    return null;
   }
 
 }
