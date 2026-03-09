@@ -4,6 +4,13 @@
   "description": "Wraps ChatGPT with a robot conversation overlay.",
   "version": "0.1.0",
   "permissions": ["storage"],
+  "background": {
+    "service_worker": "assets/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Toggle Chrome AI Talk overlay"
+  },
   "host_permissions": ["https://chatgpt.com/*"],
   "content_scripts": [
     {

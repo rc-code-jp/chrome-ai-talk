@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import type { ChatMessage, ChatState, ChatStatus } from './types';
 
 type Listener = (state: ChatState) => void;
@@ -14,6 +15,8 @@ export class ChatGptDomAdapter {
   private listeners = new Set<Listener>();
 
   private observer: MutationObserver | null = null;
+
+  private refreshScheduled = false;
 
   private state: ChatState = DEFAULT_STATE;
 
@@ -34,7 +37,24 @@ export class ChatGptDomAdapter {
   }
 
   setOverlayEnabled(overlayEnabled: boolean) {
-    this.setState({ overlayEnabled });
+    if (overlayEnabled === this.state.overlayEnabled) {
+      return;
+    }
+
+    this.state = { ...this.state, overlayEnabled };
+
+    if (overlayEnabled) {
+      if (this.listeners.size > 0 && !this.observer) {
+        this.start();
+        return;
+      }
+
+      this.refresh();
+      return;
+    }
+
+    this.stop();
+    this.emit();
   }
 
   async sendMessage(text: string): Promise<{ ok: boolean; error?: string }> {
@@ -89,29 +109,53 @@ export class ChatGptDomAdapter {
   }
 
   refresh(errorMessage?: string) {
+    if (!this.state.overlayEnabled) {
+      return;
+    }
+
     const nextState = this.computeState(errorMessage ?? null);
     this.state = nextState;
     this.emit();
   }
 
   private start() {
+    if (!this.state.overlayEnabled || this.observer) {
+      return;
+    }
+
     this.refresh();
 
-    this.observer = new MutationObserver(() => {
-      this.refresh();
+    this.observer = new MutationObserver((records) => {
+      if (!records.some((record) => this.shouldProcessMutation(record))) {
+        return;
+      }
+
+      this.scheduleRefresh();
     });
 
     this.observer.observe(document.body, {
       childList: true,
       subtree: true,
       characterData: true,
-      attributes: true,
     });
   }
 
   private stop() {
     this.observer?.disconnect();
     this.observer = null;
+    this.refreshScheduled = false;
+  }
+
+  private scheduleRefresh() {
+    if (this.refreshScheduled) {
+      return;
+    }
+
+    this.refreshScheduled = true;
+    window.requestAnimationFrame(() => {
+      this.refreshScheduled = false;
+      this.refresh();
+    });
   }
 
   private emit() {
@@ -126,10 +170,10 @@ export class ChatGptDomAdapter {
   }
 
   private computeState(errorMessage: string | null): ChatState {
-    const messages = this.collectMessages();
+    const isStreaming = this.detectStreaming();
+    const messages = this.collectMessages(isStreaming);
     const composer = this.findComposer();
     const composerAvailable = Boolean(composer);
-    const isStreaming = this.detectStreaming();
 
     let status: ChatStatus = 'waiting-input';
     let syncError = errorMessage;
@@ -159,7 +203,7 @@ export class ChatGptDomAdapter {
     };
   }
 
-  private collectMessages(): ChatMessage[] {
+  private collectMessages(isStreaming: boolean): ChatMessage[] {
     const nodes = Array.from(
       document.querySelectorAll<HTMLElement>('main [data-message-author-role]'),
     );
@@ -175,34 +219,82 @@ export class ChatGptDomAdapter {
           return null;
         }
 
-        const content = this.extractMessageText(node);
-        if (!content) {
+        const content = this.extractMessageContent(node);
+        if (!content.text) {
           return null;
         }
 
-        const isStreaming =
+        const messageStreaming =
           roleValue === 'assistant' &&
           index === nodes.length - 1 &&
-          this.detectStreaming();
+          isStreaming;
 
         return {
           id: node.id || `${roleValue}-${index}`,
           role: roleValue,
-          text: content,
-          isStreaming,
+          text: content.text,
+          html: content.html,
+          isStreaming: messageStreaming,
         } satisfies ChatMessage;
       })
       .filter((message): message is ChatMessage => Boolean(message));
   }
 
-  private extractMessageText(node: HTMLElement): string {
+  private extractMessageContent(node: HTMLElement): { text: string; html: string | null } {
     const preferred =
       node.querySelector<HTMLElement>('[data-message-content]') ??
       node.querySelector<HTMLElement>('.markdown') ??
       node;
 
     const text = preferred.innerText.replace(/\n{3,}/g, '\n\n').trim();
-    return text;
+    const isAssistantMessage = node.dataset.messageAuthorRole === 'assistant';
+    const html = isAssistantMessage ? this.sanitizeMessageHtml(preferred.innerHTML) : null;
+
+    return {
+      text,
+      html,
+    };
+  }
+
+  private sanitizeMessageHtml(html: string): string | null {
+    const trimmed = html.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    const sanitizedHtml = DOMPurify.sanitize(trimmed, {
+      USE_PROFILES: { html: true },
+      ALLOWED_ATTR: ['class', 'href', 'target', 'rel'],
+    });
+
+    return sanitizedHtml || null;
+  }
+
+  private shouldProcessMutation(record: MutationRecord): boolean {
+    if (!this.isExternalNode(record.target)) {
+      return false;
+    }
+
+    if (record.type === 'childList') {
+      const addedNodes = Array.from(record.addedNodes).some((node) => this.isExternalNode(node));
+      const removedNodes = Array.from(record.removedNodes).some((node) => this.isExternalNode(node));
+      return addedNodes || removedNodes;
+    }
+
+    return true;
+  }
+
+  private isExternalNode(node: Node | null): boolean {
+    if (!node) {
+      return false;
+    }
+
+    const element = node instanceof Element ? node : node.parentElement;
+    if (!element) {
+      return false;
+    }
+
+    return !element.closest('#chrome-ai-talk-root') && !element.closest('style[data-chrome-ai-talk]');
   }
 
   private detectStreaming(): boolean {

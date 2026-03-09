@@ -2,9 +2,10 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { ChatOverlayApp } from '../ui/ChatOverlayApp';
 import { ChatGptDomAdapter } from '../lib/chatgptDomAdapter';
-import { STORAGE_KEY_OVERLAY_ENABLED } from '../lib/storage';
 import contentStyles from './styles.css?inline';
 import overlayStyles from '../ui/styles.css?inline';
+
+const STORAGE_KEY_OVERLAY_ENABLED = 'chromeAiTalk.overlayEnabled';
 
 function injectStyles() {
   const style = document.createElement('style');
@@ -33,14 +34,24 @@ async function bootstrap() {
     }
   }
 
+  chrome.storage?.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') {
+      return;
+    }
+
+    const change = changes[STORAGE_KEY_OVERLAY_ENABLED];
+    if (!change || typeof change.newValue !== 'boolean') {
+      return;
+    }
+
+    adapter.setOverlayEnabled(change.newValue);
+  });
+
   root.render(
     <React.StrictMode>
       <ChatOverlayApp
         adapter={adapter}
         initialOverlayEnabled={overlayEnabled}
-        onOverlayEnabledChange={(enabled) => {
-          void storage?.set({ [STORAGE_KEY_OVERLAY_ENABLED]: enabled });
-        }}
       />
     </React.StrictMode>,
   );

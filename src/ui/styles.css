@@ -2,25 +2,6 @@
   pointer-events: none;
 }
 
-.chrome-ai-toggle {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 2;
-  pointer-events: auto;
-  border: 0;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(18, 31, 46, 0.9);
-  color: #fff7ef;
-  padding: 0;
-  box-shadow: 0 12px 36px rgba(7, 15, 24, 0.28);
-  cursor: pointer;
-}
-
 .chrome-ai-new-chat {
   position: fixed;
   left: 18px;
@@ -33,10 +14,11 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: rgba(18, 31, 46, 0.9);
-  color: #fff7ef;
+  background: rgba(7, 13, 24, 0.92);
+  color: #e2f3ff;
   padding: 0;
-  box-shadow: 0 12px 36px rgba(7, 15, 24, 0.28);
+  box-shadow: none;
+  border: 0;
   cursor: pointer;
 }
 
@@ -50,17 +32,14 @@
   stroke-linejoin: round;
 }
 
-.chrome-ai-toggle-icon {
-  font: 700 18px/1 "Avenir Next", "Trebuchet MS", sans-serif;
-}
-
 .chrome-ai-overlay {
   height: 100vh;
-  padding: 28px;
+  padding: 8px;
   background:
-    radial-gradient(circle at top left, rgba(255, 236, 199, 0.9), transparent 24%),
-    radial-gradient(circle at top right, rgba(255, 168, 136, 0.28), transparent 24%),
-    linear-gradient(180deg, rgba(255, 248, 238, 0.96), rgba(255, 232, 222, 0.93));
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 28%),
+    radial-gradient(circle at bottom center, rgba(14, 165, 233, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.95), rgba(3, 7, 18, 0.92));
   backdrop-filter: blur(10px);
   pointer-events: auto;
   overflow: hidden;
@@ -68,16 +47,16 @@
 }
 
 .chrome-ai-stage {
-  height: calc(100vh - 56px);
+  height: calc(100vh - 16px);
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  gap: 14px;
+  gap: 4px;
   min-height: 0;
 }
 
 .chrome-ai-scene {
   position: relative;
-  margin: 18px 18px 0;
+  margin: 4px 4px 0;
   min-height: 0;
   overflow: hidden;
   background: transparent;
@@ -97,7 +76,7 @@
 
 .chrome-ai-robot {
   width: 100%;
-  max-width: 500px;
+  max-width: 720px;
   filter: drop-shadow(0 24px 44px rgba(56, 189, 248, 0.25));
   animation: chrome-ai-float 4.8s ease-in-out infinite;
 }
@@ -108,7 +87,7 @@
 }
 
 .chrome-ai-pane-left {
-  flex: 5;
+  flex: 6.5;
   position: relative;
   display: flex;
   align-items: center;
@@ -117,10 +96,10 @@
 }
 
 .chrome-ai-pane-right {
-  flex: 5;
+  flex: 3.5;
   position: relative;
   overflow-y: auto;
-  padding: 32px 32px 32px 16px;
+  padding: 8px 8px 8px 4px;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -131,47 +110,50 @@
 }
 
 .chrome-ai-pane-right::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.5);
   margin-top: 16px;
   margin-bottom: 16px;
 }
 
 .chrome-ai-pane-right::-webkit-scrollbar-thumb {
-  background: rgba(14, 165, 233, 0.4);
+  background: rgba(56, 189, 248, 0.45);
   border-radius: 6px;
-  border: 2px solid rgba(255, 255, 255, 0.6);
+  border: 2px solid rgba(15, 23, 42, 0.85);
 }
 
 .chrome-ai-chat-history {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
   width: 100%;
   margin-top: auto;
-  padding-bottom: 16px;
+  padding-bottom: 4px;
 }
 
 .chrome-ai-chat-balloon {
   position: relative;
   max-width: 85%;
-  padding: 14px 20px;
-  border-radius: 20px;
+  padding: 10px 14px;
+  border-radius: 16px;
   font: 600 15px/1.6 "Avenir Next", "Trebuchet MS", sans-serif;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .chrome-ai-chat-balloon p {
   margin: 0;
 }
 
+.chrome-ai-chat-text {
+  white-space: pre-wrap;
+}
+
 .chrome-ai-chat-balloon-assistant {
   align-self: flex-start;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1e293b;
+  background: rgba(15, 23, 42, 0.72);
+  color: #dbeafe;
   border-bottom-left-radius: 4px;
-  box-shadow: 0 4px 16px rgba(100, 150, 200, 0.15);
-  border: 1px solid rgba(255, 255, 255, 1);
+  box-shadow: none;
+  border: 0;
 }
 
 .chrome-ai-chat-balloon-assistant::before {
@@ -181,16 +163,17 @@
   left: -8px;
   width: 16px;
   height: 16px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(15, 23, 42, 0.88);
   clip-path: polygon(100% 0, 0 100%, 100% 100%);
 }
 
 .chrome-ai-chat-balloon-user {
   align-self: flex-end;
-  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
   color: #ffffff;
   border-bottom-right-radius: 4px;
-  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
+  box-shadow: none;
+  border: 0;
 }
 
 .chrome-ai-chat-balloon-user::after {
@@ -200,63 +183,194 @@
   right: -8px;
   width: 16px;
   height: 16px;
-  background: #38bdf8;
+  background: #0ea5e9;
   clip-path: polygon(0 0, 0 100%, 100% 100%);
 }
 
 .chrome-ai-streaming-indicator {
   display: inline-block;
   margin-left: 8px;
-  color: #94a3b8;
+  color: #7dd3fc;
   font-weight: 700;
   animation: chrome-ai-pulse 1s infinite alternate;
 }
 
+.chrome-ai-rich-content {
+  display: grid;
+  gap: 12px;
+}
+
+.chrome-ai-rich-content > :first-child {
+  margin-top: 0;
+}
+
+.chrome-ai-rich-content > :last-child {
+  margin-bottom: 0;
+}
+
+.chrome-ai-rich-content p,
+.chrome-ai-rich-content ul,
+.chrome-ai-rich-content ol,
+.chrome-ai-rich-content blockquote,
+.chrome-ai-rich-content pre,
+.chrome-ai-rich-content table,
+.chrome-ai-rich-content h1,
+.chrome-ai-rich-content h2,
+.chrome-ai-rich-content h3,
+.chrome-ai-rich-content h4 {
+  margin: 0;
+}
+
+.chrome-ai-rich-content ul,
+.chrome-ai-rich-content ol {
+  padding-left: 1.4em;
+}
+
+.chrome-ai-rich-content li + li {
+  margin-top: 4px;
+}
+
+.chrome-ai-rich-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chrome-ai-rich-content strong {
+  font-weight: 800;
+}
+
+.chrome-ai-rich-content em {
+  font-style: italic;
+}
+
+.chrome-ai-rich-content code {
+  font: 600 0.92em/1.5 "SFMono-Regular", "SF Mono", "Menlo", monospace;
+  padding: 0.15em 0.4em;
+  border-radius: 8px;
+  background: rgba(51, 65, 85, 0.58);
+}
+
+.chrome-ai-rich-content pre {
+  overflow-x: auto;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(2, 6, 23, 0.96);
+  color: #e2e8f0;
+  box-shadow: none;
+}
+
+.chrome-ai-rich-content pre code {
+  display: block;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  white-space: pre;
+}
+
+.chrome-ai-rich-content blockquote {
+  padding-left: 14px;
+  border-left: 4px solid rgba(14, 165, 233, 0.45);
+  color: rgba(191, 219, 254, 0.82);
+}
+
+.chrome-ai-rich-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 14px;
+  box-shadow: none;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.chrome-ai-rich-content thead {
+  background: rgba(30, 41, 59, 0.88);
+}
+
+.chrome-ai-rich-content th,
+.chrome-ai-rich-content td {
+  min-width: 120px;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-right: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.chrome-ai-rich-content th:last-child,
+.chrome-ai-rich-content td:last-child {
+  border-right: 0;
+}
+
+.chrome-ai-rich-content tr:last-child td {
+  border-bottom: 0;
+}
+
+.chrome-ai-chat-balloon-user .chrome-ai-rich-content code {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.chrome-ai-chat-balloon-user .chrome-ai-rich-content pre {
+  background: rgba(8, 47, 73, 0.92);
+}
+
 .chrome-ai-composer {
-  padding: 18px 22px 22px;
-  border-top: 1px solid rgba(101, 71, 48, 0.12);
-  background: rgba(255, 250, 244, 0.92);
+  padding: 8px 10px 10px;
+  border-top: 0;
+  background: rgba(15, 23, 42, 0.82);
 }
 
 .chrome-ai-composer-panel {
-  margin: 0 18px 18px;
-  border-radius: 28px;
-  border: 1px solid rgba(99, 69, 45, 0.08);
-  box-shadow: 0 12px 32px rgba(80, 48, 23, 0.08);
+  margin: 0 4px 4px;
+  border-radius: 18px;
+  border: 0;
+  box-shadow: none;
 }
 
 .chrome-ai-composer textarea {
   width: 100%;
   resize: vertical;
-  min-height: 92px;
-  border: 1px solid rgba(101, 71, 48, 0.16);
-  border-radius: 18px;
-  background: #fffdf9;
-  color: #2a1e18;
-  padding: 14px 16px;
+  min-height: 64px;
+  max-height: 96px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.84);
+  color: #e2e8f0;
+  padding: 8px 10px;
   font: 500 15px/1.5 "Avenir Next", "Trebuchet MS", sans-serif;
 }
 
+.chrome-ai-composer textarea::placeholder {
+  color: #94a3b8;
+}
+
+.chrome-ai-composer textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
+}
+
 .chrome-ai-composer-footer {
-  margin-top: 12px;
+  margin-top: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  color: #8a654f;
-  font: 500 13px/1.4 "Avenir Next", "Trebuchet MS", sans-serif;
+  gap: 8px;
+  color: #94a3b8;
+  font: 500 12px/1.3 "Avenir Next", "Trebuchet MS", sans-serif;
 }
 
 .chrome-ai-composer-footer button {
   flex: none;
   border: 0;
   border-radius: 999px;
-  background: linear-gradient(135deg, #ff9461, #ff7058);
+  background: linear-gradient(135deg, #0369a1, #0ea5e9);
   color: white;
-  padding: 12px 18px;
+  padding: 8px 12px;
   font: 700 14px/1 "Avenir Next", "Trebuchet MS", sans-serif;
   cursor: pointer;
-  box-shadow: 0 12px 24px rgba(255, 112, 88, 0.24);
+  box-shadow: none;
 }
 
 .chrome-ai-composer textarea:disabled,
@@ -293,15 +407,15 @@
 
 @media (max-width: 980px) {
   .chrome-ai-overlay {
-    padding: 16px;
+    padding: 4px;
   }
 
   .chrome-ai-stage {
-    height: calc(100vh - 32px);
+    height: calc(100vh - 8px);
   }
 
   .chrome-ai-scene {
-    margin: 12px 12px 0;
+    margin: 2px 2px 0;
   }
 
   .chrome-ai-scene-split {
@@ -310,16 +424,16 @@
 
   .chrome-ai-pane-left {
     flex: none;
-    height: 40%;
+    height: 46%;
   }
 
   .chrome-ai-pane-right {
     flex: 1;
-    padding: 16px;
+    padding: 6px 4px;
   }
 
   .chrome-ai-robot {
-    width: min(72vw, 240px);
+    width: min(88vw, 340px);
   }
 
   .chrome-ai-chat-frame {
@@ -332,6 +446,6 @@
   }
 
   .chrome-ai-composer-panel {
-    margin: 0 12px 12px;
+    margin: 0 2px 2px;
   }
 }

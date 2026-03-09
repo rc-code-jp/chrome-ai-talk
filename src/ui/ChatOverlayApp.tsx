@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef, type FormEvent, type KeyboardEvent } from 'react';
 import { RobotAvatar } from './RobotAvatar';
 import type { ChatGptDomAdapter } from '../lib/chatgptDomAdapter';
-import type { ChatState } from '../lib/types';
+import type { ChatMessage, ChatState } from '../lib/types';
 
 interface ChatOverlayAppProps {
   adapter: ChatGptDomAdapter;
   initialOverlayEnabled: boolean;
-  onOverlayEnabledChange: (enabled: boolean) => void;
 }
 
 const EMPTY_STATE: ChatState = {
@@ -17,10 +16,22 @@ const EMPTY_STATE: ChatState = {
   overlayEnabled: true,
 };
 
+function renderMessageBody(message: ChatMessage) {
+  if (message.role === 'user' || !message.html) {
+    return <p className="chrome-ai-chat-text">{message.text}</p>;
+  }
+
+  return (
+    <div
+      className="chrome-ai-rich-content"
+      dangerouslySetInnerHTML={{ __html: message.html }}
+    />
+  );
+}
+
 export function ChatOverlayApp({
   adapter,
   initialOverlayEnabled,
-  onOverlayEnabledChange,
 }: ChatOverlayAppProps) {
   const [chatState, setChatState] = useState<ChatState>({
     ...EMPTY_STATE,
@@ -100,12 +111,6 @@ export function ChatOverlayApp({
     });
   }
 
-  function handleOverlayToggle() {
-    const nextEnabled = !overlayEnabled;
-    adapter.setOverlayEnabled(nextEnabled);
-    onOverlayEnabledChange(nextEnabled);
-  }
-
   function handleNewChat() {
     const result = adapter.startNewChat();
     if (!result.ok) {
@@ -120,18 +125,6 @@ export function ChatOverlayApp({
 
   return (
     <div className="chrome-ai-shell" data-overlay-enabled={overlayEnabled}>
-      <button
-        className="chrome-ai-toggle"
-        type="button"
-        onClick={handleOverlayToggle}
-        aria-label={overlayEnabled ? 'Hide overlay' : 'Show overlay'}
-        title={overlayEnabled ? 'Hide overlay' : 'Show overlay'}
-      >
-        <span className="chrome-ai-toggle-icon" aria-hidden="true">
-          {overlayEnabled ? '◐' : '◯'}
-        </span>
-      </button>
-
       {!overlayEnabled ? null : (
         <main className="chrome-ai-overlay">
           <button
@@ -164,9 +157,9 @@ export function ChatOverlayApp({
                       Hello. I am ready when your ChatGPT tab is ready.
                     </div>
                   ) : (
-                    chatState.messages.map((msg, idx) => (
-                      <div key={idx} className={`chrome-ai-chat-balloon chrome-ai-chat-balloon-${msg.role}`}>
-                        {msg.text}
+                    chatState.messages.map((msg) => (
+                      <div key={msg.id} className={`chrome-ai-chat-balloon chrome-ai-chat-balloon-${msg.role}`}>
+                        {renderMessageBody(msg)}
                         {msg.isStreaming && (
                           <span className="chrome-ai-streaming-indicator">...</span>
                         )}
@@ -186,7 +179,7 @@ export function ChatOverlayApp({
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={handleComposerKeyDown}
                 placeholder="Type here and send through the hidden ChatGPT composer..."
-                rows={3}
+                rows={2}
                 disabled={!chatState.composerAvailable}
               />
               <div className="chrome-ai-composer-footer">
