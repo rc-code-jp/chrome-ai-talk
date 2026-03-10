@@ -150,7 +150,7 @@
   max-width: 85%;
   padding: 10px 14px;
   border-radius: 16px;
-  font: 600 15px/1.6 "Avenir Next", "Trebuchet MS", sans-serif;
+  font: 600 14px/1.6 "Avenir Next", "Trebuchet MS", sans-serif;
   overflow-wrap: anywhere;
 }
 
@@ -234,7 +234,14 @@
 .chrome-ai-rich-content h3,
 .chrome-ai-rich-content h4 {
   margin: 0;
+  font-weight: 700;
+  line-height: 1.4;
 }
+
+.chrome-ai-rich-content h1 { font-size: 1.25em; }
+.chrome-ai-rich-content h2 { font-size: 1.15em; }
+.chrome-ai-rich-content h3 { font-size: 1.07em; }
+.chrome-ai-rich-content h4 { font-size: 1em; }
 
 .chrome-ai-rich-content ul,
 .chrome-ai-rich-content ol {
@@ -281,6 +288,7 @@
   background: transparent;
   color: inherit;
   white-space: pre;
+  line-height: 1.4;
 }
 
 .chrome-ai-rich-content blockquote {

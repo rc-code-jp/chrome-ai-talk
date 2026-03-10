@@ -88,6 +88,7 @@ export function ChatOverlayApp({
       return;
     }
 
+    shouldAutoScrollRef.current = true;
     const result = await adapter.sendMessage(nextDraft);
 
     if (!result.ok) {
