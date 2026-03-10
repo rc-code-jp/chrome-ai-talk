@@ -44,7 +44,32 @@ async function bootstrap() {
       return;
     }
 
+    overlayEnabled = change.newValue;
     adapter.setOverlayEnabled(change.newValue);
+  });
+
+  // Alt+Shift+A (Mac: Option+Shift+A) でオーバーレイをトグル
+  // event.code を使うことでキーボードレイアウト差異を回避
+  document.addEventListener('keydown', (event) => {
+    if (!event.altKey || !event.shiftKey || event.code !== 'KeyA') {
+      return;
+    }
+
+    // 入力中は発火しない（Mac で Option+Shift+A が特殊文字を入力する場合を含む）
+    const target = event.target as HTMLElement;
+    const isTyping =
+      target.tagName === 'TEXTAREA' ||
+      target.tagName === 'INPUT' ||
+      target.isContentEditable;
+
+    if (isTyping) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const next = !overlayEnabled;
+    void storage?.set({ [STORAGE_KEY_OVERLAY_ENABLED]: next });
   });
 
   root.render(

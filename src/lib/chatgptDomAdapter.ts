@@ -9,6 +9,7 @@ const DEFAULT_STATE: ChatState = {
   composerAvailable: false,
   syncError: null,
   overlayEnabled: true,
+  currentModel: null,
 };
 
 export class ChatGptDomAdapter {
@@ -200,6 +201,7 @@ export class ChatGptDomAdapter {
       status,
       syncError,
       overlayEnabled: this.state.overlayEnabled,
+      currentModel: this.detectModel(),
     };
   }
 
@@ -295,6 +297,34 @@ export class ChatGptDomAdapter {
     }
 
     return !element.closest('#chrome-ai-talk-root') && !element.closest('style[data-chrome-ai-talk]');
+  }
+
+  private detectModel(): string | null {
+    const selectors = [
+      '[data-testid="model-switcher-dropdown-button"]',
+      'button[aria-haspopup="menu"][aria-label*="Model"]',
+      'button[aria-haspopup="listbox"]',
+      '[data-testid*="model-switcher"]',
+    ];
+
+    for (const selector of selectors) {
+      const el = document.querySelector<HTMLElement>(selector);
+      if (!el) continue;
+      const text = el.innerText?.trim().split('\n')[0];
+      if (text) return text;
+    }
+
+    // Fallback: look for a button in the page header that names a known model
+    const knownModels = ['o3', 'o1', 'o4', 'GPT-4o', 'GPT-4', 'GPT-3.5', 'Claude', 'Gemini'];
+    const buttons = Array.from(document.querySelectorAll<HTMLElement>('header button, nav button'));
+    for (const btn of buttons) {
+      const text = btn.innerText?.trim().split('\n')[0];
+      if (text && knownModels.some((m) => text.includes(m))) {
+        return text;
+      }
+    }
+
+    return null;
   }
 
   private detectStreaming(): boolean {

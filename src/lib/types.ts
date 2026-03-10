@@ -16,4 +16,5 @@ export interface ChatState {
   composerAvailable: boolean;
   syncError: string | null;
   overlayEnabled: boolean;
+  currentModel: string | null;
 }

@@ -14,6 +14,7 @@ const EMPTY_STATE: ChatState = {
   composerAvailable: false,
   syncError: null,
   overlayEnabled: true,
+  currentModel: null,
 };
 
 function renderMessageBody(message: ChatMessage) {
@@ -52,6 +53,14 @@ export function ChatOverlayApp({
   const chatPaneRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [draft]);
 
   useEffect(() => {
     if (!shouldAutoScrollRef.current) {
@@ -127,6 +136,10 @@ export function ChatOverlayApp({
     <div className="chrome-ai-shell" data-overlay-enabled={overlayEnabled}>
       {!overlayEnabled ? null : (
         <main className="chrome-ai-overlay">
+          {chatState.currentModel && (
+            <div className="chrome-ai-model-badge">{chatState.currentModel}</div>
+          )}
+
           <button
             className="chrome-ai-new-chat"
             type="button"
@@ -173,27 +186,20 @@ export function ChatOverlayApp({
 
             <form className="chrome-ai-composer chrome-ai-composer-panel" onSubmit={handleSubmit}>
               <textarea
+                ref={textareaRef}
                 id="chrome-ai-input"
                 aria-label="Message input"
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={handleComposerKeyDown}
                 placeholder="Type here and send through the hidden ChatGPT composer..."
-                rows={2}
+                rows={1}
                 disabled={!chatState.composerAvailable}
               />
-              <div className="chrome-ai-composer-footer">
-                <span>
-                  {submitError
-                    ? submitError
-                    : chatState.composerAvailable
-                      ? 'Input will be forwarded to ChatGPT. Command+Enter also sends.'
-                      : 'Composer unavailable on this page.'}
-                </span>
-                <button type="submit" disabled={!chatState.composerAvailable || !draft.trim()}>
-                  Send
-                </button>
-              </div>
+              <button className="chrome-ai-send-btn" type="submit" disabled={!chatState.composerAvailable || !draft.trim()}>
+                Send
+              </button>
+              {submitError && <p className="chrome-ai-composer-error">{submitError}</p>}
             </form>
           </section>
         </main>
